@@ -67,23 +67,38 @@ router.route('/login').get(async (req, res) => {
 
     } catch (error) {
       console.log(error)
+      res.status(500).json({ error: 'Internal Server Error' });
+      return
     }
     const result = await collection.find({
       email: email,
       password: password,
       department: department
     }).toArray();
-    // console.log(result)
+    console.log(result)
     if (result.length > 0) {
       if (result) {
         await collection.updateOne({ email: email }, { $set: { token: token } })
         res.status(200).json(result)
+        console.log('set')
+        return
       }
+    }else{
+
+      const result = await collection.find({
+        email: email,
+      }).toArray();
+
+      if(result.length>0){
+        res.status(404).json({error:"Incorrect password or department"})
+        return 
+      }
+
+
     }
-
-    // console.log(result)
-
-
+    res.status(500).json({error:"server error"})
+    return 
+    console.log('end')
   } catch (error) {
     // console.error('Error deleting faculty:', error);
     res.status(500).json({ error: 'Internal Server Error' });

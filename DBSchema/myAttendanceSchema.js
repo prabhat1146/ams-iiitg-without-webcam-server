@@ -237,7 +237,7 @@ const studentSchems = new mongoose.Schema({
   },
   studentAddress:{
     type:String
-  }
+  },
 
   createdAt: {
     type: Date,

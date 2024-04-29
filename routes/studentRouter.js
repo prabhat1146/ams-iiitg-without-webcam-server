@@ -75,7 +75,7 @@ setInterval(async () => {
     console.error('Error occur while deleting students:', error);
 
   }
-}, 86400000)
+}, 600000)
 
 const secret = process.env.SECRETKEY
 
