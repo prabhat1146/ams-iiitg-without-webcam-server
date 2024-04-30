@@ -315,6 +315,14 @@ attendanceSchema = {
         type:String,
         require:false
       }, 
+      studentAudioText:{
+        type:String,
+        require:false
+      }, 
+      studentRecordedNumberInAudioText:{
+        type:String,
+        require:false
+      }, 
        
     },
     

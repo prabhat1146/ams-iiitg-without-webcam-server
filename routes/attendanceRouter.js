@@ -4,11 +4,11 @@ const router = express.Router();
 const mongoose = require('mongoose');
 
 
-setInterval(async()=>{
+setInterval(async () => {
   try {
     const database = mongoose.connection.db;
     const collection = database.collection('attendance');
-   
+
     const studentData = {
       $or: [
         { studentAttendances: { $exists: false } }, // Documents where studentAttendances field does not exist
@@ -17,18 +17,18 @@ setInterval(async()=>{
     };
     const result = await collection.deleteMany(studentData);
 
-    if(result){
+    if (result) {
       console.log("cleanup suceess...")
       console.log(result)
-    }else{
+    } else {
       console.log("fail to cleanup")
     }
 
   } catch (error) {
     console.error('Error occur while deleting(cleanup-process i.e having 0 students) attendance data:', error);
-   
+
   }
-},86400000)
+}, 86400000)
 
 router.route('/find').get(async (req, res) => {
   try {
@@ -37,7 +37,7 @@ router.route('/find').get(async (req, res) => {
     const database = mongoose.connection.db;
     const collection = database.collection('attendance');
 
-    const queryParams=req.query
+    const queryParams = req.query
 
     // console.log('q',queryParams)
 
@@ -71,29 +71,29 @@ router.route('/attendanceData').get(async (req, res) => {
     // console.log('r',req.query)
     const database = mongoose.connection.db;
     const collection = database.collection('attendance');
-    const {studentEmail,studentAdmissionYear,courseID}=req.query
-    
+    const { studentEmail, studentAdmissionYear, courseID } = req.query
 
-    if(!studentEmail || !studentAdmissionYear || !courseID){
+
+    if (!studentEmail || !studentAdmissionYear || !courseID) {
       // console.log('rl')
-      return res.status(404).json({error:'All field required'})
+      return res.status(404).json({ error: 'All field required' })
     }
 
     // console.log('rr',req.query)
-    
-    const filter={
-      courseID:courseID.trim(),
-      studentAdmissionYear:studentAdmissionYear.trim(),
-      'studentAttendances.studentEmail':studentEmail.trim()
+
+    const filter = {
+      courseID: courseID.trim(),
+      studentAdmissionYear: studentAdmissionYear.trim(),
+      'studentAttendances.studentEmail': studentEmail.trim()
     }
 
     const result = await collection.find(filter).toArray();
     // console.log('1',result)
 
     if (result) {
-      res.status(200).json({present:result.length});
+      res.status(200).json({ present: result.length });
     } else {
-      res.status(404).json({ present:0 });
+      res.status(404).json({ present: 0 });
     }
 
   } catch (error) {
@@ -108,16 +108,16 @@ router.route('/attendanceTotalData').get(async (req, res) => {
     // console.log('r',req.query)
     const database = mongoose.connection.db;
     const collection = database.collection('attendance');
-    const queryParams=req.query
+    const queryParams = req.query
     // console.log('q',queryParams)
     const query = {};
     for (const [key, value] of Object.entries(queryParams)) {
-      if (value == '' || value==null) {
+      if (value == '' || value == null) {
         continue
       }
       query[key] = value.trim();
     }
-  
+
 
     const result = await collection.find(query).toArray();
     // console.log('1',result)
@@ -125,7 +125,7 @@ router.route('/attendanceTotalData').get(async (req, res) => {
     if (result) {
       res.status(200).json(result);
     } else {
-      res.status(404).json({error:'Not found'});
+      res.status(404).json({ error: 'Not found' });
     }
 
   } catch (error) {
@@ -140,19 +140,19 @@ router.route('/liveClasses').get(async (req, res) => {
     // console.log('r',req.query)
     const database = mongoose.connection.db;
     const collection = database.collection('attendance');
-    const {date,timeSlot}=req.query
-    
+    const { date, timeSlot } = req.query
 
-    if(!date || !timeSlot){
+
+    if (!date || !timeSlot) {
       // console.log('rl')
-      return res.status(404).json({error:'All field required'})
+      return res.status(404).json({ error: 'All field required' })
     }
 
     // console.log('rr',req.query)
-    
-    const filter={
-      date:date.trim(),
-      timeSlot:timeSlot.trim()  
+
+    const filter = {
+      date: date.trim(),
+      timeSlot: timeSlot.trim()
     }
 
     const result = await collection.find(filter).toArray();
@@ -161,7 +161,7 @@ router.route('/liveClasses').get(async (req, res) => {
     if (result) {
       res.status(200).json(result);
     } else {
-      res.status(404).json({error:'Not found'});
+      res.status(404).json({ error: 'Not found' });
     }
 
   } catch (error) {
@@ -216,7 +216,7 @@ router.route('/initiate').post(async (req, res) => {
     } else {
       // Handle the case where the document was not inserted successfully
       res.status(500).json({ error: 'Failed to insert document' });
-      
+
     }
   } catch (error) {
     // console.log(error)
@@ -236,7 +236,7 @@ router.route('/setOtpByCourseID').post(async (req, res) => {
     // Validate required fields
 
     if (!courseID || !facultyEmail || !otp || !date || !timeSlot || !studentAdmissionyear) {
-      
+
       return res.status(400).json({ error: 'some fields are required' });
     }
 
@@ -275,13 +275,13 @@ router.route('/makeAttendanceByCourseID').post(async (req, res) => {
   try {
     const database = mongoose.connection.db;
     const collection = database.collection('attendance');
-    const { courseID, otp, date, timeSlot, studentRollNo, studentEmail, degree, department } = req.body;
-  
+    const { courseID, otp, date, timeSlot, studentRollNo, studentEmail, degree, audioNumber,audioText } = req.body;
+
     // Validate required fields
     if (!courseID || !otp || !date || !timeSlot || !studentRollNo || !studentEmail || !degree) {
       return res.status(400).json({ error: 'Some fields are required' });
     }
-  
+
     // Step 1: Check for duplicates based on the provided data
     const duplicateCheckFilter = {
       courseID: courseID.trim(),
@@ -293,14 +293,14 @@ router.route('/makeAttendanceByCourseID').post(async (req, res) => {
       'studentAttendances.studentRollNo': studentRollNo.trim(),
       'studentAttendances.studentEmail': studentEmail.trim()
     };
-  
+
     const existingDocument = await collection.findOne(duplicateCheckFilter);
-  
+
     if (existingDocument) {
       // console.log('202')
       return res.status(202).json({ message: 'Data already exists' });
     }
-  
+
     // Step 2: Validate student based on different data
     const studentValidationFilter = {
       courseID: courseID.trim(),
@@ -311,26 +311,28 @@ router.route('/makeAttendanceByCourseID').post(async (req, res) => {
       // department: department.trim()
       // Add more conditions if needed for student validation
     };
-  
+
 
     const isStudentValidated = await collection.findOne(studentValidationFilter);
-  
+
     if (!isStudentValidated) {
       // console.log('404')
       return res.status(404).json({ error: 'Student validation failed' });
     }
-  
+
     // Step 3: Update attendance with new data if validation is successful
     const newAttendanceData = {
       "studentAttendances": [
         {
           "studentRollNo": studentRollNo.trim(),
-          "studentEmail": studentEmail.trim()
+          "studentEmail": studentEmail.trim(),
+          'studentAudioText': audioText,
+          'studentRecordedNumberInAudioText': audioNumber
         }
         // Add more student attendance records as needed
       ]
     };
-  
+
     const updateFilter = {
       courseID: courseID.trim(),
       date: date.trim(),
@@ -339,13 +341,13 @@ router.route('/makeAttendanceByCourseID').post(async (req, res) => {
       degree: degree.trim(),
       // department: department.trim()
     };
-  
+
     const updateResult = await collection.updateOne(
       updateFilter,
       { $addToSet: { "studentAttendances": { $each: newAttendanceData.studentAttendances } } },
       { upsert: false } // Set to false since you only want to update, not insert
     );
-  
+
     if (updateResult) {
       // Document was updated successfully
       res.status(200).json({ message: 'Document updated successfully' });
@@ -358,7 +360,72 @@ router.route('/makeAttendanceByCourseID').post(async (req, res) => {
     console.error('Error processing request:', error);
     res.status(500).json({ error: 'Internal Server Error' });
   }
-  
+
+
+});
+router.route('/setRecoredAudioTextInAttendanceByCourseID').post(async (req, res) => {
+  try {
+    const database = mongoose.connection.db;
+    const collection = database.collection('attendance');
+    const { date, timeSlot, studentRollNo, studentEmail, degree, audioText, AudioNumber } = req.body;
+
+    // Validate required fields
+    if (!date || !timeSlot || !studentRollNo || !studentEmail || !degree) {
+      return res.status(400).json({ error: 'Some fields are required' });
+    }
+
+    // Step 1: Check for duplicates based on the provided data
+    const filter = {
+      date: date.trim(),
+      timeSlot: timeSlot.trim(),
+      degree: degree.trim(),
+      'studentAttendances.studentRollNo': studentRollNo.trim(),
+      'studentAttendances.studentEmail': studentEmail.trim()
+    };
+
+    const existingDocument = await collection.findOne(filter);
+
+    if (existingDocument) {
+      audioText = audioText + '/' + existingDocument.studentAudioText;
+      AudioNumber = AudioNumber + '/' + existingDocument.studentRecordedNumberInAudioText
+    }
+
+    // Step 2: Validate student based on different data
+
+
+    // Step 3: Update attendance with new data if validation is successful
+    const newAttendanceData = {
+      "studentAttendances": [
+        {
+          "studentRollNo": studentRollNo.trim(),
+          "studentEmail": studentEmail.trim(),
+          "studentAudioText": audioText,
+          "studentRecordedNumberInAudioText": AudioNumber
+        }
+        // Add more student attendance records as needed
+      ]
+    };
+
+
+    const updateResult = await collection.updateOne(
+      filter,
+      { $addToSet: { "studentAttendances": { $each: newAttendanceData.studentAttendances } } },
+      { upsert: false } // Set to false since you only want to update, not insert
+    );
+
+    if (updateResult) {
+      // Document was updated successfully
+      res.status(200).json({ message: 'Document updated successfully' });
+    } else {
+      // No documents matched the update criteria
+      // console.log('40')
+      res.status(404).json({ error: 'No matching document found for update' });
+    }
+  } catch (error) {
+    console.error('Error processing request:', error);
+    res.status(500).json({ error: 'Internal Server Error' });
+  }
+
 
 });
 
@@ -378,7 +445,7 @@ router.route('/setOtpByGroupID').post(async (req, res) => {
 
       return res.status(400).json({ error: 'some fields are required' });
     }
-    
+
     // Create a document with the extracted fields
     const attendanceData = {
       otp: otp.trim(),
@@ -414,13 +481,13 @@ router.route('/makeAttendanceByGroupID').post(async (req, res) => {
   try {
     const database = mongoose.connection.db;
     const collection = database.collection('attendance');
-    const { courseID, otp, date, timeSlot, studentRollNo, studentEmail, degree, department,studentGroup } = req.body;
-  
+    const { courseID, otp, date, timeSlot, studentRollNo, studentEmail, degree, audioText,audioNumber, studentGroup } = req.body;
+
     // Validate required fields
-    if (!courseID || !otp || !date || !timeSlot || !studentRollNo || !studentEmail || !degree  || !studentGroup) {
+    if (!courseID || !otp || !date || !timeSlot || !studentRollNo || !studentEmail || !degree || !studentGroup) {
       return res.status(400).json({ error: 'Some fields are required' });
     }
-  
+
     // Step 1: Check for duplicates based on the provided data
     const duplicateCheckFilter = {
       courseID: courseID.trim(),
@@ -429,18 +496,18 @@ router.route('/makeAttendanceByGroupID').post(async (req, res) => {
       otp: otp.trim(),
       degree: degree.trim(),
       // department: department.trim(),
-      studentGroup:studentGroup.trim(),
+      studentGroup: studentGroup.trim(),
       'studentAttendances.studentRollNo': studentRollNo.trim(),
       'studentAttendances.studentEmail': studentEmail.trim()
     };
-  
+
     const existingDocument = await collection.findOne(duplicateCheckFilter);
-  
+
     if (existingDocument) {
       // console.log('202')
       return res.status(202).json({ message: 'Data already exists' });
     }
-  
+
     // Step 2: Validate student based on different data
     const studentValidationFilter = {
       courseID: courseID.trim(),
@@ -449,29 +516,31 @@ router.route('/makeAttendanceByGroupID').post(async (req, res) => {
       otp: otp.trim(),
       degree: degree.trim(),
       // department: department.trim(),
-      studentGroup:studentGroup.trim()
+      studentGroup: studentGroup.trim()
       // Add more conditions if needed for student validation
     };
-  
+
 
     const isStudentValidated = await collection.findOne(studentValidationFilter);
-  
+
     if (!isStudentValidated) {
-      // console.log('404')
+      console.log('404',studentValidationFilter)
       return res.status(404).json({ error: 'Student validation failed' });
     }
-  
+
     // Step 3: Update attendance with new data if validation is successful
     const newAttendanceData = {
       "studentAttendances": [
         {
           "studentRollNo": studentRollNo.trim(),
-          "studentEmail": studentEmail.trim()
+          "studentEmail": studentEmail.trim(),
+          'studentAudioText': audioText,
+          'studentRecordedNumberInAudioText': audioNumber
         }
         // Add more student attendance records as needed
       ]
     };
-  
+
     const updateFilter = {
       courseID: courseID.trim(),
       date: date.trim(),
@@ -479,15 +548,15 @@ router.route('/makeAttendanceByGroupID').post(async (req, res) => {
       otp: otp.trim(),
       degree: degree.trim(),
       // department: department.trim(),
-      studentGroup:studentGroup.trim()
+      studentGroup: studentGroup.trim()
     };
-  
+
     const updateResult = await collection.updateOne(
       updateFilter,
       { $addToSet: { "studentAttendances": { $each: newAttendanceData.studentAttendances } } },
       { upsert: false } // Set to false since you only want to update, not insert
     );
-  
+
     if (updateResult) {
       // Document was updated successfully
       res.status(200).json({ message: 'Document updated successfully' });
@@ -500,7 +569,7 @@ router.route('/makeAttendanceByGroupID').post(async (req, res) => {
     console.error('Error processing request:', error);
     res.status(500).json({ error: 'Internal Server Error' });
   }
-  
+
 
 });
 
@@ -519,7 +588,7 @@ router.route('/setOtpBySectionID').post(async (req, res) => {
     // console.log('r',req.body)
 
     if (!courseID || !facultyEmail || !otp || !date || !timeSlot || !studentSection || !studentAdmissionyear) {
-     
+
       return res.status(400).json({ error: 'some fields are required' });
     }
 
@@ -558,14 +627,14 @@ router.route('/makeAttendanceBySectionID').post(async (req, res) => {
   try {
     const database = mongoose.connection.db;
     const collection = database.collection('attendance');
-    const { courseID, otp, date, timeSlot, studentRollNo, studentEmail, degree, department , studentSection} = req.body;
-  
+    const { courseID, otp, date, timeSlot, studentRollNo, studentEmail, degree, audioNumber,audioText, studentSection } = req.body;
+
     // Validate required fields
     // console.log(req.body)
     if (!courseID || !otp || !date || !timeSlot || !studentRollNo || !studentEmail || !degree || !studentSection) {
       return res.status(400).json({ error: 'Some fields are required' });
     }
-  
+
     // Step 1: Check for duplicates based on the provided data
     const duplicateCheckFilter = {
       courseID: courseID.trim(),
@@ -574,18 +643,18 @@ router.route('/makeAttendanceBySectionID').post(async (req, res) => {
       otp: otp.trim(),
       degree: degree.trim(),
       // department: department.trim(),
-      studentSection:studentSection.trim(),
+      studentSection: studentSection.trim(),
       'studentAttendances.studentRollNo': studentRollNo.trim(),
       'studentAttendances.studentEmail': studentEmail.trim()
     };
-  
+
     const existingDocument = await collection.findOne(duplicateCheckFilter);
-  
+
     if (existingDocument) {
       // console.log('202')
       return res.status(202).json({ message: 'Data already exists' });
     }
-  
+
     // Step 2: Validate student based on different data
     const studentValidationFilter = {
       courseID: courseID.trim(),
@@ -594,29 +663,31 @@ router.route('/makeAttendanceBySectionID').post(async (req, res) => {
       otp: otp.trim(),
       degree: degree.trim(),
       // department: department.trim(),
-      studentSection:studentSection.trim()
+      studentSection: studentSection.trim()
       // Add more conditions if needed for student validation
     };
-  
+
 
     const isStudentValidated = await collection.findOne(studentValidationFilter);
-  
+
     if (!isStudentValidated) {
       // console.log('404')
       return res.status(404).json({ error: 'Student validation failed' });
     }
-  
+
     // Step 3: Update attendance with new data if validation is successful
     const newAttendanceData = {
       "studentAttendances": [
         {
           "studentRollNo": studentRollNo.trim(),
-          "studentEmail": studentEmail.trim()
+          "studentEmail": studentEmail.trim(),
+          'studentAudioText': audioText,
+          'studentRecordedNumberInAudioText': audioNumber
         }
         // Add more student attendance records as needed
       ]
     };
-  
+
     const updateFilter = {
       courseID: courseID.trim(),
       date: date.trim(),
@@ -624,15 +695,15 @@ router.route('/makeAttendanceBySectionID').post(async (req, res) => {
       otp: otp.trim(),
       degree: degree.trim(),
       // department: department.trim(),
-      studentSection:studentSection.trim()
+      studentSection: studentSection.trim()
     };
-  
+
     const updateResult = await collection.updateOne(
       updateFilter,
       { $addToSet: { "studentAttendances": { $each: newAttendanceData.studentAttendances } } },
       { upsert: false } // Set to false since you only want to update, not insert
     );
-  
+
     if (updateResult) {
       // Document was updated successfully
       res.status(200).json({ message: 'Document updated successfully' });
@@ -645,7 +716,7 @@ router.route('/makeAttendanceBySectionID').post(async (req, res) => {
     console.error('Error processing request:', error);
     res.status(500).json({ error: 'Internal Server Error' });
   }
-  
+
 
 });
 

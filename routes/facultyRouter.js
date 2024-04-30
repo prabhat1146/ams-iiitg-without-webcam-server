@@ -97,7 +97,7 @@ router.route('/login').get(async (req, res) => {
 
     }
     res.status(500).json({error:"server error"})
-    return 
+    return
     console.log('end')
   } catch (error) {
     // console.error('Error deleting faculty:', error);
