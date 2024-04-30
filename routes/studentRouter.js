@@ -856,18 +856,11 @@ router.route('/courseRegistrationForNewSemester').post(async (req, res) => {
     const collection = database.collection('student');
     const { studentDegree, studentDepartment, studentEmail, studentRoll, semester, courses, studentGroup, studentSection } = req.body;
 
-    // Validate required fields
-    // console.log("All data found");
-    // console.log(studentRoll);
-    // console.log(studentEmail);
-    // console.log(studentDegree);
-    // console.log(studentDepartment);
-    // console.log(courses);
-    // console.log(semester);
-    // console.log(studentGroup);
-    // console.log(studentSection);
     if (!semester || !courses || !studentDegree || !studentDepartment || !studentSection || !studentGroup || !studentEmail || !studentRoll) {
-      return res.status(400).json({ error: 'All fields are required' });
+      if(semester<7){
+        return res.status(400).json({ error: 'All fields are required' });
+      }
+      
     }
 
     const existingStudent = await collection.findOne({
