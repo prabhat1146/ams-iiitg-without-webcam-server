@@ -386,6 +386,8 @@ router.route('/SendEmailVerificationLinkForAdmin').post(async (req, res) => {
 
         transporter.sendMail(mailOptions, (error, info) => {
             if (error) {
+                console.log('sending failed for admin')
+                console.log(error)
                 res.status(500).send({ isEmailVerified: false });
                 return 
             }

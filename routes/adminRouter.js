@@ -241,32 +241,17 @@ router.route('/update-adminid').post(async (req, res) => {
     const collection = database.collection('admin');
 
 
-    const queryParams = req.body; // Use req.query for GET requests
+    const [oldAdminId,newAdminId] = req.body; // Use req.query for GET requests
     // console.log(req.query)
 
-    const query = {};
-    let adminid = ""
-    // let oldPassword = '';
-    for (const [key, value] of Object.entries(queryParams)) {
-      // console.log('k',value)
-      if (value == '' || value == null) {
-        continue;
-      }
-      if (key === 'adminID') {
-        adminid = value;
-        continue;
-      }
-      
-      query[key] = value.trim();
-    };
    
 
-    const filter = { adminID: adminid.trim()};
+    const filter = { adminID: oldAdminId.trim()};
     // console.log('f',filter)
     const resu = await collection.find(filter).toArray();
     if (resu.length) {
       // console.log(query)
-      const update = { $set: {adminID:adminid }};
+      const update = { $set: {adminID:newAdminId.trim()}};
       const options = { returnDocument: 'after' };
 
       var result = await collection.findOneAndUpdate(filter, update, options);
