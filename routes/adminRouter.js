@@ -241,13 +241,13 @@ router.route('/update-adminid').post(async (req, res) => {
     const collection = database.collection('admin');
 
 
-    const [oldAdminId,newAdminId] = req.body; // Use req.query for GET requests
+    const {oldAdminId,newAdminId} = req.body; // Use req.query for GET requests
     // console.log(req.query)
 
    
 
     const filter = { adminID: oldAdminId.trim()};
-    // console.log('f',filter)
+    console.log('f',filter)
     const resu = await collection.find(filter).toArray();
     if (resu.length) {
       // console.log(query)

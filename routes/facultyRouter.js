@@ -202,6 +202,8 @@ router.route('/add').post(async (req, res) => {
     const findFirst = await collection.find({ email: email }).toArray();
     if (findFirst.length > 0) {
       // console.log("fin",findFirst)
+      res.status(400).json({ error: 'faculty already found'});
+      console.log('imh')
       return
     }
     // console.log("fi",findFirst)
